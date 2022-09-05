@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class solarSystem : MonoBehaviour
 {
-    public bool sorted = false;
+    // J- preferable to use [SerializeField] w/ private vs public field 
+    //public bool sorted = false;
+    [SerializeField] bool sorted = false;
     private bool isSorted = false;
-    public List<GameObject> planets = new List<GameObject>();
+
+    // J- planets might not need to be public?
+    List<GameObject> planets = new List<GameObject>();
     Dictionary<GameObject, Vector3> originalLocations = new Dictionary<GameObject, Vector3>();
     Dictionary<GameObject, float> originalSpeeds = new Dictionary<GameObject, float>();
     private float maxDist = 15;
@@ -18,10 +22,22 @@ public class solarSystem : MonoBehaviour
             foreach(Transform childPlanet in childOrbit)
             {
                 planets.Add(childPlanet.gameObject);
-                originalLocations.Add(childPlanet.gameObject, new Vector3(childPlanet.localPosition.x, childPlanet.localPosition.y, childPlanet.localPosition.z));
+
+                //J - no need to create a new Vector, just grab localPosition in total
+                //originalLocations.Add(childPlanet.gameObject, new Vector3(childPlanet.localPosition.x, childPlanet.localPosition.y, childPlanet.localPosition.z));
+                originalLocations.Add(childPlanet.gameObject, childPlanet.localPosition);
             }
-            originalSpeeds.Add(childOrbit.gameObject, childOrbit.gameObject.GetComponent<ObjectRotator>().orbitSpeed);
+            //J - put long references on a new line for readability or
+            //(better) create a variable
+            originalSpeeds.Add(childOrbit.gameObject, 
+                childOrbit.gameObject.GetComponent<ObjectRotator>().orbitSpeed);
+            //var originalOrbitSpeed = childOrbit.gameObject.GetComponent<ObjectRotator>().orbitSpeed;
+            //originalSpeeds.Add(childOrbit.gameObject, originalOrbitSpeed);
+
         }
+        //J - OOOOoooooo I love this, as this is the kind of thing I SUCK at,
+        //so I'm thrilled to see elegant ways to do stuff that I would write spaghetti
+        //to accomplish
         planets.Sort(delegate (GameObject x, GameObject y)
         {
             return x.transform.localScale.z.CompareTo(y.transform.localScale.z);
